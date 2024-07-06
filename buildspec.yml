@@ -1,0 +1,19 @@
+version: 0.2
+
+env:
+  variables:
+    S3_BUCKET_NAME: gbs-blog-dev-web
+
+phases:
+  pre_build:
+    commands:
+      - export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - yarn install
+  build:
+    commands:
+      - yarn build:prod
+  post_build:
+    commands:
+      - aws s3 sync build/ s3://$S3_BUCKET_NAME/
+      - aws cloudfront create-invalidation --distribution-id "E1D0I1EMJ4O77T" --paths '/*'
